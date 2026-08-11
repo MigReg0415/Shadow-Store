@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String?
+  email        String   @unique
+  passwordHash String?
+  role         Role     @default(CUSTOMER)
+  phone        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String
+  slug        String    @unique
+  description String?
+  imageUrl    String?
+  position    Int       @default(0)
+  active      Boolean   @default(true)
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id           String    @id @default(uuid())
+  name         String
+  slug         String    @unique
+  description  String?
+  price        Decimal   @db.Decimal(12, 2)
+  pricePromo   Decimal?  @db.Decimal(12, 2)
+  stock        Int       @default(0)
+  sku          String    @unique
+  images       String[]
+  categoryId   String?
+  category     Category?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  active       Boolean   @default(true)
+  featured     Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model StoreConfig {
+  id              String   @id @default(uuid())
+  storeName       String   @default("Shadow Store")
+  storeDescription String?
+  primaryColor    String   @default("#6366F1")
+  updatedAt       DateTime @updatedAt
+}
